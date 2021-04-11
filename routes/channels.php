@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Chat;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -14,13 +15,6 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::routes();
-
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
-});
-
-Broadcast::channel('chat.{id}', function ($user, $id) {
-//    return (int) $user->id === (int) Chat::findOrNew($id);
-    return true;
+Broadcast::channel('messenger', function () {
+    return Auth::check();
 });

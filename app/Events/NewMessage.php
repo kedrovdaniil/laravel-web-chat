@@ -9,10 +9,11 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewMessage implements ShouldBroadcast
+class NewMessage implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -23,17 +24,20 @@ class NewMessage implements ShouldBroadcast
      */
     public $chatId;
     public $message;
+    public $senderId;
 
     /**
      * Create a new event instance.
      *
-     * @param Chat $chat
+     * @param int $chatId
      * @param Message $message
+     * @param int $senderId
      */
-    public function __construct(int $chatId, Message $message)
+    public function __construct(int $chatId, Message $message, int $senderId)
     {
         $this->chatId = $chatId;
         $this->message = $message;
+        $this->senderId = $senderId;
     }
 
     /**
@@ -43,6 +47,19 @@ class NewMessage implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('chat.'.$this->chatId);
+//        return new Channel('chat.'.$this->chatId);
+//        return new Channel('messenger');
+        return new PrivateChannel('messenger');
+//        return new PresenceChannel('messenger');
+    }
+
+    public function broadcastAs()
+    {
+        return "NewMessage";
+    }
+
+    public function broadcastWith()
+    {
+        return ['chatId' => $this->chatId, 'message' => $this->message, 'senderId' => $this->senderId];
     }
 }

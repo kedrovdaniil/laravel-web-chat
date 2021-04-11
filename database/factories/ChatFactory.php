@@ -21,10 +21,13 @@ class ChatFactory extends Factory
      */
     public function definition()
     {
+        $managedByUser = $this->faker->numberBetween(1, 5);
+
         return [
             'name' => $this->faker->colorName,
             'avatar_url' => $this->faker->imageUrl(),
-            'created_by_user_id' => $this->faker->numberBetween(1, 5),
+            'created_by_user_id' => $managedByUser,
+            'managed_by_user_id' => $managedByUser,
             'created_at' => now(),
             'updated_at' => now(),
             'deleted_at' => null

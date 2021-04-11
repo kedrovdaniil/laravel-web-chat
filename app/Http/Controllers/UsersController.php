@@ -2,13 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\NewMessage;
-use App\Models\Message;
+use App\Http\Resources\UserResource;
+use App\Models\Chat;
+use App\Models\User;
+use App\Traits\ResponseAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class MessageController extends Controller
+class UsersController extends Controller
 {
+    use ResponseAPI;
+    /**
+     * Display a listing of the resource.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function find(Request $request)
+    {
+        $search = $request->search;
+
+        $users = User::where('name', 'like', "%$search%")
+                        ->orWhere('email', 'like', "%$search%")
+                        ->get();
+
+        return UserResource::collection($users);
+//        return "OK";
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -17,20 +39,7 @@ class MessageController extends Controller
      */
     public function store(Request $request)
     {
-        $message = new Message();
-        $message->chat_id = (int) $request->chat_id;
-        $message->user_id = Auth::id();
-        $message->content = $request->message;
-
-        $r = $message->save();
-
-        if ($r) {
-            broadcast(new NewMessage($message->chat_id, $message, $message->user_id));
-            return response()->json([
-                'saved' => true,
-                'broadcasted' => true
-            ]);
-        }
+        //
     }
 
     /**
@@ -42,6 +51,17 @@ class MessageController extends Controller
     public function show($id)
     {
         //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+
     }
 
     /**

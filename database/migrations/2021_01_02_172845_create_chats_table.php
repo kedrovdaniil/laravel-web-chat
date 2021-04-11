@@ -15,9 +15,10 @@ class CreateChatsTable extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->char('name', 100);
+            $table->char('name', 100)->nullable();
             $table->char('avatar_url', 255);
             $table->foreignId('created_by_user_id');
+            $table->foreignId('managed_by_user_id');
             $table->timestamps();
             $table->softDeletes();
         });

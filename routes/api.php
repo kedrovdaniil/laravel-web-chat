@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatsController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\UsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -25,11 +26,24 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/allChats', [ChatsController::class, 'index']);
-Route::get('/chat/{id}', [ChatsController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/chat/{id}', [MessageController::class, 'store']);
+
+    // chats
+    Route::get('/allChats', [ChatsController::class, 'index']);
+    Route::post('/chat/create', [ChatsController::class, 'create']);
+    Route::get('/chat/{id}/delete', [ChatsController::class, 'destroy']);
+    Route::post('/chat/{id}/edit', [ChatsController::class, 'editName']);
+
+    // messages
+    Route::get('/chat/{id}/messages', [ChatsController::class, 'show']);
+    Route::post('/chat/{id}/messages', [MessageController::class, 'store']);
+
+    // search
+    Route::post('/chat/users/search', [UsersController::class, 'find']);
+
+    // chat members
+    Route::post('/chat/{id}/add-member', [ChatsController::class, 'addMember']);
+    Route::post('/chat/{id}/remove-member', [ChatsController::class, 'removeMember']);
 });
 
-Broadcast::routes();
-
+//Broadcast::routes(['middleware' => ['auth:sanctum']]);
