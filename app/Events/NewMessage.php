@@ -47,10 +47,7 @@ class NewMessage implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-//        return new Channel('chat.'.$this->chatId);
-//        return new Channel('messenger');
         return new PrivateChannel('messenger');
-//        return new PresenceChannel('messenger');
     }
 
     public function broadcastAs()

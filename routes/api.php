@@ -18,10 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
+// get a user auth data
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -30,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // chats
     Route::get('/allChats', [ChatsController::class, 'index']);
-    Route::post('/chat/create', [ChatsController::class, 'create']);
+    Route::post('/chat/create', [ChatsController::class, 'store']);
     Route::get('/chat/{id}/delete', [ChatsController::class, 'destroy']);
     Route::post('/chat/{id}/edit', [ChatsController::class, 'editName']);
 
@@ -45,5 +42,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/{id}/add-member', [ChatsController::class, 'addMember']);
     Route::post('/chat/{id}/remove-member', [ChatsController::class, 'removeMember']);
 });
-
-//Broadcast::routes(['middleware' => ['auth:sanctum']]);

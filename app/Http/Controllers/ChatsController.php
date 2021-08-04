@@ -23,9 +23,10 @@ class ChatsController extends Controller
      */
     public function index()
     {
-//        dd('we are here!');
+        // get id of the user
         $userId = Auth::id();
-//        $userId = 1;
+
+        // get chats
         $chatsForUser = Chat::with(['members'])->whereHas('members', function ($query) use ($userId) {
             $query->where('user_id', $userId)->where('deleted_at', null);
         })->get();
@@ -34,12 +35,12 @@ class ChatsController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Store a newly created resource in storage.
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request)
+    public function store(Request $request)
     {
         // validation
         $request->validate([
@@ -49,22 +50,18 @@ class ChatsController extends Controller
         ]);
 
         // create a chat
-//        $log = !empty($request->name) ? $request->name : null;
-//        Log::info('log = '.(int) !empty($request->name));
         $initiatorId = Auth::id();
         $chat = new Chat();
         $chat->name = !empty($request->name) ? $request->name : null;
         $chat->avatar_url = null;
         $chat->created_by_user_id = $initiatorId;
         $chat->managed_by_user_id = $initiatorId;
-//        $result = $chat->save();
-//        Log::info('result = '.$result);
 
         // add members for the chat
         $members = json_decode($request->members);
         $membersCount = count($members);
-//        Log::info($members);
 
+        // set a default avatar if the user doesn't have self avatar
         if ($membersCount > 1) {
             if ($request->avatar_url) {
                 $chat->avatar_url = $request->avatar_url;
@@ -76,9 +73,13 @@ class ChatsController extends Controller
             $chat->avatar_url = User::find($members[0]->id)->avatar_url;
             $result = $chat->save();
         }
+
+        // map members ids for add them to database
         $usersIds = array_map(function ($member) {
             return $member->id;
         }, $members);
+
+        // add members to the chat and save this into database
         $results = collect($usersIds)->push(Auth::id())->unique()->map(function ($id) use ($chat) {
             $member = new ChatUser();
             $member->chat_id = $chat->id;
@@ -86,6 +87,7 @@ class ChatsController extends Controller
             return $member->save();
         })->toArray();
 
+        // return response
         if (!in_array(false, $results)) {
             return $this->successResponse('OK', [
                 'result' => true
@@ -143,17 +145,6 @@ class ChatsController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -161,10 +152,9 @@ class ChatsController extends Controller
      */
     public function show($id)
     {
-        $userId = 1;
+        // get messages which haven't been deleted
         $messages = Message::where('chat_id', $id)->where('deleted_at', null)->latest()->paginate(25);
 
-//        $messageResource = new MessageResource($messages);
         return MessageResource::collection($messages);
     }
 
@@ -216,6 +206,7 @@ class ChatsController extends Controller
      */
     public function destroy($id)
     {
+        // get a chat's id
         $chat = Chat::with('members')->find($id);
 
         // initiator
@@ -225,9 +216,6 @@ class ChatsController extends Controller
         $membersIds = $chat->members->modelKeys();
         $countOfMembers = count($membersIds);
         $isPublicChat = $countOfMembers > 2;
-//        Log::info('$membersIds = ');
-//        Log::info($membersIds);
-
 
         // 1. проверить есть ли такой пользователь в чате
         $result = null;

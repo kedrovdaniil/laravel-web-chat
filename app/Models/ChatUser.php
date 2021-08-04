@@ -12,4 +12,8 @@ class ChatUser extends Model
     protected $table = 'chat_user';
 
     public $timestamps = false;
+
+    protected $primaryKey = null;
+
+    public $incrementing = false;
 }

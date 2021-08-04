@@ -17,13 +17,9 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 Broadcast::routes();
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+// for test the broadcast
 Route::get('/broadcast', function () {
     broadcast(new \App\Events\Hello());
 });
-
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
